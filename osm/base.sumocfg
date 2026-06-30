@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sumoConfiguration>
+    <input>
+        <net-file value="A5.net.xml"/>
+        <route-files value="routes/vehicleRoutes.rou.xml"/>
+        <additional-files value="polygons.poly.xml,detectors.det.xml,reroute.add.xml"/>
+
+    </input>
+
+    <time>
+        <begin value="39346"/>
+        <end value="41000"/>
+    </time>
+
+    <output>
+        <statistic-output value="stats.xml"/>
+    </output>
+
+    <processing>
+        <scale value="20"/>
+        <time-to-teleport value="-1"/>
+    </processing>
+
+</sumoConfiguration>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.62.11 87bfad18">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2026-04-28T15:35:46Z"/>
+
+  <node id="21433838" lat="38.7108254" lon="-9.3096313"/>
+  <node id="32179289" lat="38.7102575" lon="-9.3106922"/>
+  <node id="32179290" lat="38.7119863" lon="-9.3071302"/>
+  <node id="177205791" lat="38.7095959" lon="-9.3122837"/>
+  <node id="177205795" lat="38.7115383" lon="-9.3085337"/>
+  <node id="258183825" lat="38.7109398" lon="-9.3097352"/>
+  <node id="623711733" lat="38.7097093" lon="-9.3116954"/>
+  <node id="3266915135" lat="38.7121820" lon="-9.3065803"/>
+  <node id="3266915138" lat="38.7123871" lon="-9.3059822"/>
+  <node id="3266915140" lat="38.7125723" lon="-9.3053693"/>
+  <node id="3266915143" lat="38.7127732" lon="-9.3046585"/>
+  <node id="3266915144" lat="38.7129177" lon="-9.3040698"/>
+  <node id="3267094014" lat="38.7117679" lon="-9.3080217"/>
+  <node id="3267094016" lat="38.7121080" lon="-9.3071929"/>
+  <node id="3267094018" lat="38.7123016" lon="-9.3066551"/>
+  <node id="3267094021" lat="38.7125088" lon="-9.3060556"/>
+  <node id="3267094023" lat="38.7127003" lon="-9.3054427"/>
+  <node id="3267094025" lat="38.7128363" lon="-9.3049452"/>
+  <node id="3267094026" lat="38.7130540" lon="-9.3041097"/>
+  <node id="3267110713" lat="38.7129051" lon="-9.3046878"/>
+  <node id="3954090548" lat="38.7087837" lon="-9.3142767"/>
+  <node id="3954090572" lat="38.7085287" lon="-9.3145916"/>
+  <node id="3954090623" lat="38.7088412" lon="-9.3140955"/>
+  <node id="3954090628" lat="38.7089030" lon="-9.3134989"/>
+  <node id="3954090631" lat="38.7086636" lon="-9.3146579"/>
+  <node id="3954090676" lat="38.7091249" lon="-9.3129517"/>
+  <node id="3954090681" lat="38.7095079" lon="-9.3124689"/>
+  <node id="3954090685" lat="38.7091961" lon="-9.3127881"/>
+  <node id="3954090687" lat="38.7094202" lon="-9.3126451"/>
+  <node id="3954090702" lat="38.7090579" lon="-9.3131126"/>
+  <node id="3954090716" lat="38.7089826" lon="-9.3132977"/>
+  <node id="3954090756" lat="38.7092835" lon="-9.3129560"/>
+  <node id="3954090775" lat="38.7093015" lon="-9.3125580"/>
+  <node id="3954090872" lat="38.7091266" lon="-9.3133259"/>
+  <node id="3954090923" lat="38.7090726" lon="-9.3134613"/>
+  <node id="3954090929" lat="38.7089554" lon="-9.3137671"/>
+  <node id="3954090945" lat="38.7088319" lon="-9.3136866"/>
+  <node id="3954090970" lat="38.7088976" lon="-9.3139280"/>
+  <node id="3954090991" lat="38.7094467" lon="-9.3125960"/>
+  <node id="3954091017" lat="38.7093844" lon="-9.3123831"/>
+  <node id="3954091031" lat="38.7092067" lon="-9.3131319"/>
+  <node id="3954091050" lat="38.7087532" lon="-9.3139027"/>
+  <node id="3954091073" lat="38.7086821" lon="-9.3141143"/>
+  <node id="3954091092" lat="38.7090098" lon="-9.3136222"/>
+  <node id="4186790409" lat="38.7111310" lon="-9.3090462"/>
+  <node id="4186790410" lat="38.7112440" lon="-9.3091482"/>
+  <node id="4186790411" lat="38.7114324" lon="-9.3084293"/>
+  <node id="4186790414" lat="38.7116543" lon="-9.3079385"/>
+  <node id="8273211070" lat="38.7128984" lon="-9.3047130">
+    <tag k="highway" v="crossing"/>
+  </node>
+  <node id="8273211071" lat="38.7127354" lon="-9.3047921">
+    <tag k="highway" v="crossing"/>
+  </node>
+  <way id="49166745">
+    <nd ref="3954090687"/>
+    <nd ref="3954090756"/>
+    <nd ref="3954091031"/>
+    <nd ref="3954090872"/>
+    <nd ref="3954090923"/>
+    <nd ref="3954091092"/>
+    <nd ref="3954090929"/>
+    <nd ref="3954090970"/>
+    <nd ref="3954090623"/>
+    <nd ref="3954090548"/>
+    <nd ref="3954090631"/>
+    <tag k="bicycle" v="no"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="highway" v="motorway"/>
+    <tag k="lanes" v="3"/>
+    <tag k="layer" v="1"/>
+    <tag k="maxspeed" v="120"/>
+    <tag k="minspeed" v="50"/>
+    <tag k="name" v="Autoestrada da Costa do Estoril"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="ref" v="A 5;IC 15"/>
+    <tag k="surface" v="asphalt"/>
+    <tag k="toll" v="yes"/>
+  </way>
+  <way id="49166752">
+    <nd ref="3954090572"/>
+    <nd ref="3954091073"/>
+    <nd ref="3954091050"/>
+    <nd ref="3954090945"/>
+    <nd ref="3954090628"/>
+    <nd ref="3954090716"/>
+    <nd ref="3954090702"/>
+    <nd ref="3954090676"/>
+    <nd ref="3954090685"/>
+    <nd ref="3954090775"/>
+    <tag k="bicycle" v="no"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="highway" v="motorway"/>
+    <tag k="lanes" v="3"/>
+    <tag k="layer" v="1"/>
+    <tag k="maxspeed" v="120"/>
+    <tag k="minspeed" v="50"/>
+    <tag k="name" v="Autoestrada da Costa do Estoril"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="ref" v="A 5;IC 15"/>
+    <tag k="surface" v="asphalt"/>
+    <tag k="toll" v="yes"/>
+  </way>
+  <way id="320209307">
+    <nd ref="3267094026"/>
+    <nd ref="3267110713"/>
+    <nd ref="8273211070"/>
+    <nd ref="3267094025"/>
+    <nd ref="3267094023"/>
+    <nd ref="3267094021"/>
+    <nd ref="3267094018"/>
+    <nd ref="3267094016"/>
+    <nd ref="3267094014"/>
+    <nd ref="177205795"/>
+    <nd ref="4186790410"/>
+    <nd ref="258183825"/>
+    <nd ref="177205791"/>
+    <nd ref="3954090681"/>
+    <nd ref="3954090991"/>
+    <nd ref="3954090687"/>
+    <tag k="highway" v="motorway"/>
+    <tag k="lanes" v="3"/>
+    <tag k="maxheight" v="default"/>
+    <tag k="maxspeed" v="120"/>
+    <tag k="minspeed" v="50"/>
+    <tag k="name" v="Autoestrada da Costa do Estoril"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="ref" v="A 5"/>
+    <tag k="surface" v="asphalt"/>
+    <tag k="toll" v="yes"/>
+  </way>
+  <way id="418240456">
+    <nd ref="3954090775"/>
+    <nd ref="3954091017"/>
+    <nd ref="623711733"/>
+    <nd ref="32179289"/>
+    <nd ref="21433838"/>
+    <nd ref="4186790409"/>
+    <nd ref="4186790411"/>
+    <nd ref="4186790414"/>
+    <nd ref="32179290"/>
+    <nd ref="3266915135"/>
+    <nd ref="3266915138"/>
+    <nd ref="3266915140"/>
+    <nd ref="8273211071"/>
+    <nd ref="3266915143"/>
+    <nd ref="3266915144"/>
+    <tag k="highway" v="motorway"/>
+    <tag k="lanes" v="3"/>
+    <tag k="maxheight" v="default"/>
+    <tag k="maxspeed" v="120"/>
+    <tag k="minspeed" v="50"/>
+    <tag k="name" v="Autoestrada da Costa do Estoril"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="ref" v="A 5"/>
+    <tag k="surface" v="asphalt"/>
+    <tag k="toll" v="yes"/>
+  </way>
+
+</osm>

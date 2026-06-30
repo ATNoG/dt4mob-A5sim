@@ -1,0 +1,117 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A5 Simulation Control</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
+        h2 { margin-top: 0; color: #333; font-size: 1.2rem; }
+        .group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #666; font-size: 0.9rem; }
+        input[type="range"], input[type="number"] { width: 100%; }
+        button { width: 100%; padding: 0.8rem; background: #2ecc71; border: none; color: white; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #27ae60; }
+        #status { margin-top: 1rem; font-size: 0.85rem; color: #e67e22; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .card { width: 500px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>A5 Proof of Concept</h2>
+        <h4>Value Definition</h3>
+        <div class="group">
+            <label>Paying Vehicle Percentage: <span id="percVal">1</span>%</label>
+            <input type="range" id="perc" min="0" max="100" value="20" oninput="percVal.innerText=this.value">
+            <p style="font-size: 0.7rem; color: #888;">*</p>
+        </div>
+        <div class="group">
+            <label>Lane Price (€)</label>
+            <input type="number" id="price" value="1.00" step="0.10">
+        </div>
+        <div class="group">
+            <label>Scale Traffic</label>
+            <input type="number" id="scale_traffic" value="2.0" step="0.5">
+        </div>
+        <button onclick="runSim()">Start Simulation</button>
+        <div id="status"></div>
+        <div id="results-container" style="display:none;">
+            <h3>Simulation Results</h3>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Total Veh</th>
+                        <th>Lane 2</th>
+                        <th>Usage %</th>
+                        <th>Revenue</th>
+                        <th>Avg Speeds (km/h)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function runSim() {
+            const status = document.getElementById('status');
+            const tableBody = document.querySelector('#resultsTable tbody');
+            const resultsContainer = document.getElementById('results-container');
+            
+            const data = {
+                perc: document.getElementById('perc').value / 100,
+                price: document.getElementById('price').value,
+                scale_traffic: document.getElementById('scale_traffic').value
+            };
+
+            status.innerText = "Simulations running...";
+            tableBody.innerHTML = "";
+            resultsContainer.style.display = "none";
+
+            try {
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if(result.status === "success") {
+                    status.innerText = "Finished!";
+                    resultsContainer.style.display = "block";
+                    
+                    for (const [scenario, stats] of Object.entries(result.data)) {
+                        let speedHtml = '<ul class="speed-list">';
+                        for (const [lane, speed] of Object.entries(stats.avg_speeds)) {
+                            const laneIndex = lane.split('_').pop(); // Get '0', '1', or '2'
+                            speedHtml += `<li>Lane ${laneIndex}: <b>${speed}</b></li>`;
+                        }
+                        speedHtml += '</ul>';
+                        
+                        const row = `<tr>
+                            <td>${scenario}</td>
+                            <td>${stats.total_vehicles}</td>
+                            <td>${stats.lane2_vehicles}</td>
+                            <td>${stats.lane2_usage_perc}</td>
+                            <td>€${stats.revenue}</td>
+                            <td>${speedHtml}</td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    }
+                } else {
+                    status.innerText = "Error: " + result.message;
+                }
+            } catch (err) {
+                status.innerText = "Error connecting to server.";
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

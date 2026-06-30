@@ -1,0 +1,11 @@
+## export from here
+https://www.openstreetmap.org/export#map=18/38.711444/-9.307724&layers=N
+
+https://overpass-turbo.eu/
+
+## create net xml file and polygon file
+netconvert --osm-files A5map.osm -o A5.net.xml
+
+polyconvert   --osm-files mappol.osm   --type-file /usr/share/sumo/data/typemap/osmPolyconvert.typ.xml   -o polygons.poly.xml
+
+
