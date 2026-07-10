@@ -1,0 +1,7 @@
+apiVersion: v2
+name: dt4mob-reserved-lane-simulation
+description: A Helm chart for the on-demand A5 reserved lane SUMO simulation service.
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

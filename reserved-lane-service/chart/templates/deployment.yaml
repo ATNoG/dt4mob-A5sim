@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dt4mob-reserved-lane.fullname" . }}
+  labels:
+    {{- include "dt4mob-reserved-lane.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "dt4mob-reserved-lane.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "dt4mob-reserved-lane.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: reserved-lane-simulator
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: PYTHONPATH
+              value: "/app"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: SUMO__MAX_CONCURRENT_JOBS
+              value: {{ .Values.config.sumo.maxConcurrentJobs | quote }}
+            - name: SUMO__JOB_TTL_SECONDS
+              value: {{ .Values.config.sumo.jobTtlSeconds | quote }}
+            - name: SUMO__BEGIN
+              value: {{ .Values.config.sumo.beginTime | quote }}
+            - name: SUMO__END
+              value: {{ .Values.config.sumo.endTime | quote }}
+            - name: SUMO__STEP_LENGTH
+              value: {{ .Values.config.sumo.stepLength | quote }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

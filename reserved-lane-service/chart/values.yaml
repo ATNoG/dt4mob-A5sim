@@ -1,0 +1,38 @@
+# Default values for the reserved-lane-simulation chart.
+
+replicaCount: 1
+
+image:
+  repository: "atnog-harbor.av.it.pt/dt4mob/reserved_lane_simulator"
+  tag: "latest"
+  imagePullPolicy: "Never"
+
+service:
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  host: "platform.dt4mob.local"
+  path: /reserved-lane(/|$)(.*)
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
+
+config:
+  logLevel: "INFO"
+
+  sumo:
+    maxConcurrentJobs: 2
+    jobTtlSeconds: 3600
+    beginTime: 39346
+    endTime: 40000
+    stepLength: 0.1

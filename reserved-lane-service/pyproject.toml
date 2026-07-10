@@ -1,0 +1,17 @@
+[project]
+name = "reserved-lane-service"
+version = "0.1.0"
+description = "On-demand SUMO simulation service for the A5 reserved (paid) lane proof of concept."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "eclipse-sumo>=1.25.0",
+    "traci>=1.25.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+]
+
+[tool.uv]
+package = false

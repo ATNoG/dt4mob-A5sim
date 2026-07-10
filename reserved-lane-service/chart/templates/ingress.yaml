@@ -1,0 +1,25 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "dt4mob-reserved-lane.fullname" . }}
+  labels:
+    {{- include "dt4mob-reserved-lane.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ include "dt4mob-reserved-lane.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- end }}

@@ -1,0 +1,294 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A5 Reserved Lane Simulation</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 560px; }
+        h2 { margin-top: 0; color: #333; font-size: 1.2rem; }
+        .group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #666; font-size: 0.9rem; }
+        input[type="range"], input[type="number"] { width: 100%; }
+        button { width: 100%; padding: 0.8rem; background: #2ecc71; border: none; color: white; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #27ae60; }
+        button:disabled { background: #a5d6b7; cursor: not-allowed; }
+        #status { margin-top: 1rem; font-size: 0.85rem; color: #e67e22; text-align: center; }
+
+        #results-container h3 { font-size: 1rem; color: #333; margin-bottom: 0.75rem; }
+
+        .results-table-wrap {
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e6e6e6;
+            margin-top: 8px;
+        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; background: white; }
+        thead th:first-child { border-top-left-radius: 9px; }
+        thead th:last-child { border-top-right-radius: 9px; }
+        tbody tr:last-child td:first-child { border-bottom-left-radius: 9px; }
+        tbody tr:last-child td:last-child { border-bottom-right-radius: 9px; }
+        thead th {
+            background: #2c3e50;
+            color: white;
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:nth-child(even) { background: #fafbfc; }
+        tbody tr:hover { background: #f1f7f4; }
+
+        .scenario-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            position: relative;
+            cursor: help;
+        }
+        .scenario-real { background: #7f8c8d; }
+        .scenario-allOpen { background: #2980b9; }
+        .scenario-closedLane { background: #e67e22; }
+        .scenario-closedLaneFast { background: #27ae60; }
+
+        .scenario-badge::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 400;
+            white-space: normal;
+            width: 200px;
+            text-align: left;
+            line-height: 1.35;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .scenario-badge::before {
+            content: "";
+            position: absolute;
+            bottom: 122%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #2c3e50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+        }
+        .scenario-badge:hover::after,
+        .scenario-badge:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .usage-cell { display: flex; align-items: center; gap: 6px; min-width: 90px; }
+        .usage-bar {
+            flex: 1;
+            height: 6px;
+            background: #eee;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .usage-bar-fill { height: 100%; background: #2ecc71; border-radius: 999px; }
+        .usage-value { font-size: 0.78rem; color: #555; min-width: 42px; text-align: right; }
+
+        .revenue-value { font-weight: 700; color: #27ae60; }
+        .revenue-zero { color: #999; font-weight: 400; }
+
+        .speed-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+        .speed-chip {
+            background: #eef3f7;
+            color: #34495e;
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        .speed-chip b { color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>A5 Reserved Lane Simulation</h2>
+        <h4>Value Definition</h4>
+        <div class="group">
+            <label>Paying Vehicle Percentage: <span id="percVal">20</span>%</label>
+            <input type="range" id="perc" min="0" max="100" value="20" oninput="percVal.innerText=this.value">
+            <p style="font-size: 0.7rem; color: #888;">Fraction of eligible vehicles allowed to pay for the reserved lane.</p>
+        </div>
+        <div class="group">
+            <label>Lane Price (€)</label>
+            <input type="number" id="price" value="1.00" step="0.10" min="0">
+        </div>
+        <div class="group">
+            <label>Scale Traffic</label>
+            <input type="number" id="scale_traffic" value="2.0" step="0.5" min="0.1">
+        </div>
+        <button id="runBtn" onclick="runSim()">Start Simulation</button>
+        <div id="status"></div>
+        <div id="results-container" style="display:none;">
+            <h3>Simulation Results</h3>
+            <div class="results-table-wrap">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Total Veh</th>
+                            <th>Lane 2</th>
+                            <th>Usage %</th>
+                            <th>Revenue</th>
+                            <th>Avg Speeds (km/h)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "/reserved-lane/api/v1";
+        const POLL_INTERVAL_MS = 2000;
+
+        async function runSim() {
+            const status = document.getElementById('status');
+            const runBtn = document.getElementById('runBtn');
+            const tableBody = document.querySelector('#resultsTable tbody');
+            const resultsContainer = document.getElementById('results-container');
+
+            const payload = {
+                paying_percentage: document.getElementById('perc').value / 100,
+                price: parseFloat(document.getElementById('price').value),
+                traffic_scale: parseFloat(document.getElementById('scale_traffic').value)
+            };
+
+            runBtn.disabled = true;
+            status.innerText = "Submitting simulation...";
+            tableBody.innerHTML = "";
+            resultsContainer.style.display = "none";
+
+            try {
+                const submitResponse = await fetch(`${API_BASE}/simulation`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                if (!submitResponse.ok) {
+                    const err = await submitResponse.json().catch(() => ({}));
+                    throw new Error(err.detail || `Request failed (${submitResponse.status})`);
+                }
+
+                const { job_id } = await submitResponse.json();
+                status.innerText = "Simulations running...";
+                await pollJob(job_id, status, tableBody, resultsContainer);
+            } catch (err) {
+                status.innerText = "Error: " + err.message;
+                console.error(err);
+            } finally {
+                runBtn.disabled = false;
+            }
+        }
+
+        async function pollJob(jobId, status, tableBody, resultsContainer) {
+            while (true) {
+                const response = await fetch(`${API_BASE}/simulation/${jobId}`);
+                if (!response.ok) {
+                    throw new Error(`Could not fetch job status (${response.status})`);
+                }
+                const job = await response.json();
+
+                if (job.status === "done") {
+                    status.innerText = "Finished!";
+                    renderResults(job.result, tableBody, resultsContainer);
+                    return;
+                }
+                if (job.status === "failed") {
+                    throw new Error(job.error || "Simulation failed");
+                }
+
+                status.innerText = job.status === "pending"
+                    ? "Waiting for a free simulation slot..."
+                    : "Simulations running...";
+
+                await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
+            }
+        }
+
+        const SCENARIO_LABELS = {
+            real: "Real",
+            allOpen: "All Open",
+            closedLane: "Closed Lane",
+            closedLaneFast: "Paid Lane"
+        };
+
+        const SCENARIO_DESCRIPTIONS = {
+            real: "Recorded real-world traffic replayed, no scaling and no lane restrictions. The baseline for comparison.",
+            allOpen: "All lanes open to all traffic, with the traffic volume scaled by chosen factor. Without any reserved lane policy.",
+            closedLane: "The reserved lane is closed to regular traffic, but no vehicles are allowed to pay to use it.",
+            closedLaneFast: "The reserved lane is closed to regular traffic, but a percentage of eligible vehicles can pay to use it."
+        };
+
+        function renderResults(data, tableBody, resultsContainer) {
+            resultsContainer.style.display = "block";
+            tableBody.innerHTML = "";
+
+            for (const [scenario, stats] of Object.entries(data)) {
+                const label = SCENARIO_LABELS[scenario] || scenario;
+                const description = SCENARIO_DESCRIPTIONS[scenario] || "";
+                const usagePerc = parseFloat(stats.lane2_usage_perc) || 0;
+
+                const speedChips = Object.entries(stats.avg_speeds).map(([lane, speed]) => {
+                    const laneIndex = lane.split('_').pop();
+                    return `<span class="speed-chip">L${laneIndex}: <b>${speed}</b></span>`;
+                }).join('');
+
+                const revenueHtml = stats.revenue > 0
+                    ? `<span class="revenue-value">€${stats.revenue.toFixed(2)}</span>`
+                    : `<span class="revenue-zero">—</span>`;
+
+                const row = `<tr>
+                    <td><span class="scenario-badge scenario-${scenario}" data-tooltip="${description}">${label}</span></td>
+                    <td>${stats.total_vehicles}</td>
+                    <td>${stats.lane2_vehicles}</td>
+                    <td>
+                        <div class="usage-cell">
+                            <div class="usage-bar"><div class="usage-bar-fill" style="width:${Math.min(usagePerc, 100)}%"></div></div>
+                            <span class="usage-value">${stats.lane2_usage_perc}</span>
+                        </div>
+                    </td>
+                    <td>${revenueHtml}</td>
+                    <td><div class="speed-chips">${speedChips}</div></td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            }
+        }
+    </script>
+</body>
+</html>

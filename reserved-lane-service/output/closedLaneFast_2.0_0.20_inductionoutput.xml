@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-07-09T16:09:10.820751+00:00 by Eclipse SUMO sumo 1.27.1
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="A5.net.xml"/>
+        <route-files value="routes/vehicleRoutes2.rou.xml"/>
+        <additional-files value="detectors.det.xml,polygons.poly.xml"/>
+    </input>
+
+    <output>
+        <output-prefix value="output/closedLaneFast_2.0_0.20_"/>
+    </output>
+
+    <time>
+        <begin value="39346"/>
+        <end value="40000"/>
+        <step-length value="0.1"/>
+    </time>
+
+    <processing>
+        <scale value="2.0"/>
+        <time-to-teleport value="-1"/>
+    </processing>
+
+    <traci_server>
+        <remote-port value="8816"/>
+    </traci_server>
+
+    <gui_only>
+        <quit-on-end value="true"/>
+    </gui_only>
+
+</sumoConfiguration>
+-->
+
+<detector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/det_e1_file.xsd">
+    <interval begin="39346.00" end="40000.00" id="toll_0" nVehContrib="324" flow="1783.49" occupancy="59.00" speed="15.16" harmonicMeanSpeed="15.11" length="5.00" nVehEntered="324"/>
+    <interval begin="39346.00" end="40000.00" id="toll_1" nVehContrib="409" flow="2251.38" occupancy="70.90" speed="16.22" harmonicMeanSpeed="15.88" length="5.00" nVehEntered="410"/>
+    <interval begin="39346.00" end="40000.00" id="toll_2" nVehContrib="184" flow="1012.84" occupancy="16.62" speed="30.74" harmonicMeanSpeed="30.47" length="5.00" nVehEntered="184"/>
+</detector>
