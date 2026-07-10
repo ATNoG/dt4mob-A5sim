@@ -80,8 +80,30 @@ With minikube:
 
 ```
 minikube addons enable ingress
+eval $(minikube docker-env)
+docker build -t reserved-lane-simulator:local .
+helm install reserved-lane ./chart \
+  --set image.repository=reserved-lane-simulator \
+  --set image.tag=local \
+  --set image.imagePullPolicy=Never \
+  --set ingress.host=reserved-lane.local
+```
 
 ```
+minikube ip
+# add to /etc/hosts:
+# <that ip>  reserved-lane.local
+```
+
+```
+kubectl get pods
+kubectl logs -f <podNAME>
+kubectl get ingress
+```
+
+Open browser in http://reserved-lane.local/reserved-lane/
+Click Start Simulation. Wait for results.
+
 
 ## Deploying
 
