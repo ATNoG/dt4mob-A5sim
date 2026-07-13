@@ -14,7 +14,7 @@ from src.settings import settings
 
 router = APIRouter(prefix="/api/v1")
 
-require_role = check_role([settings.auth.role])
+require_role = check_role([settings.auth.role] if isinstance(settings.auth.role, str) else settings.auth.role)
 
 
 @router.get("/simulation", response_model=list[JobListItem])

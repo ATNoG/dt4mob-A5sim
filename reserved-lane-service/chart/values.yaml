@@ -2,6 +2,8 @@
 
 replicaCount: 1
 
+host: ""
+
 image:
   repository: "atnog-harbor.av.it.pt/dt4mob/reserved_lane_simulator"
   tag: "latest"
@@ -16,8 +18,8 @@ ingress:
   className: "nginx"
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-  host: "tomastest.com"
-  path: /reserved-lane(/|$)(.*)
+  host: {{ .Values.host }}
+  path: /reserved-lane-simulator(/|$)(.*)
 
 resources:
   requests:
@@ -33,13 +35,14 @@ config:
   auth:
     clientId: "ditto"
     audience: "account"
-    serverUri: "https://tomastest.com/auth"
+    serverUri: "https://{{ .Values.host }}/auth"
     internalServerUri: "http://dt4mob-keycloak:8080/auth/realms/dt4mob"
     issuer: 
-      - "dt4mob-keycloak:8443/auth/realms/dt4mob"
-      - "https://tomastest.com/auth/realms/dt4mob"
+      - "dt4mob-keycloak:8080/auth/realms/dt4mob"
+      - "https://{{ .Values.host }}/auth/realms/dt4mob"
     signatureCacheTtl: 3600
-    role: "historical-read"
+    role: 
+      - "admin"
     realm: "dt4mob"
 
   sumo:

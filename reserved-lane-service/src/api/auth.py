@@ -44,8 +44,7 @@ def check_role(roles: list[str]) -> Callable:
             logger.error(f"OIDC Auth failed with status {http_exc.status_code}: {http_exc.detail}")
             unverified_payload = jwt.get_unverified_claims(credentials.credentials)
             token_issuer = unverified_payload.get("iss")
-            
-            logger.error(
+            logger.debug(
                 f"OIDC Mismatch Details:\n"
                 f" -> Expected Issuer (Your Config): '{settings.auth.issuer}'\n"
                 f" -> Actual Token Issuer (From Keycloak): '{token_issuer}'"
@@ -55,14 +54,14 @@ def check_role(roles: list[str]) -> Callable:
             # Capture any unexpected parsing/decoding crashes
             logger.error(f"Unexpected token validation crash: {str(e)}", exc_info=True)
             raise HTTPException(status_code=401, detail="Authentication failed")
-        logger.warning(f"Token resource access: {token.resource_access}")
+        logger.debug(f"Token resource access: {token.resource_access}")
         if settings.auth.client_id not in token.resource_access:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Missing role"
             )
 
         token_roles = token.resource_access[settings.auth.client_id].roles
-        logger.warning(f"Token roles: {token_roles}, required roles: {roles}")
+        logger.debug(f"Token roles: {token_roles}, required roles: {roles}")
         if not any(role in token_roles for role in roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Missing role"

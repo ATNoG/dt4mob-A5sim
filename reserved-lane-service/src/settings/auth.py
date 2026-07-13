@@ -8,5 +8,5 @@ class AuthSettings(BaseModel):
     internal_server_uri: str
     issuer: str | list[str]
     signature_cache_ttl: PositiveInt = 3600
-    role: str = "reserved-lane-access"
+    role: str | list[str] = "reserved-lane-access"
     realm: str
