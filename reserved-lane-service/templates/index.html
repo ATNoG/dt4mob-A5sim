@@ -131,10 +131,28 @@
             white-space: nowrap;
         }
         .speed-chip b { color: #2c3e50; }
+
+        #login-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: #f4f7f6;
+            justify-content: center; align-items: center;
+            z-index: 100;
+        }
+        #login-overlay .card { text-align: center; }
+        #login-overlay button { width: auto; padding: 0.8rem 2rem; }
     </style>
 </head>
 <body>
-    <div class="card">
+    <div id="login-overlay">
+        <div class="card">
+            <h2>Authentication Required</h2>
+            <p style="color:#666; font-size:0.9rem; margin-bottom:1.5rem;">You must log in to access this application.</p>
+            <button onclick="keycloak.login()">Log in with Keycloak</button>
+        </div>
+    </div>
+
+    <div class="card" id="app" style="display:none;">
         <h2>A5 Reserved Lane Simulation</h2>
         <h4>Value Definition</h4>
         <div class="group">
@@ -172,9 +190,50 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@25.0.0/dist/keycloak.min.js"></script>
     <script>
         const API_BASE = "/reserved-lane/api/v1";
         const POLL_INTERVAL_MS = 2000;
+
+        let keycloak;
+
+        async function initAuth() {
+            const res = await fetch(`${API_BASE}/auth/config`);
+            if (!res.ok) throw new Error("Failed to load auth config");
+            const cfg = await res.json();
+
+            keycloak = new Keycloak({
+                url: cfg.server_url,
+                realm: cfg.realm,
+                clientId: cfg.client_id,
+            });
+
+            try {
+                const authenticated = await keycloak.init({ onLoad: "check-sso", pkceMethod: "S256" });
+                if (!authenticated) {
+                    document.getElementById("login-overlay").style.display = "flex";
+                    return false;
+                }
+                return true;
+            } catch (err) {
+                console.error("Keycloak init failed", err);
+                document.getElementById("login-overlay").style.display = "flex";
+                return false;
+            }
+        }
+
+        async function authFetch(url, options = {}) {
+            if (keycloak.token) {
+                options.headers = options.headers || {};
+                options.headers["Authorization"] = `Bearer ${keycloak.token}`;
+            }
+            const response = await fetch(url, options);
+            if (response.status === 401) {
+                keycloak.login();
+                throw new Error("Session expired");
+            }
+            return response;
+        }
 
         async function runSim() {
             const status = document.getElementById('status');
@@ -194,7 +253,7 @@
             resultsContainer.style.display = "none";
 
             try {
-                const submitResponse = await fetch(`${API_BASE}/simulation`, {
+                const submitResponse = await authFetch(`${API_BASE}/simulation`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
@@ -218,7 +277,7 @@
 
         async function pollJob(jobId, status, tableBody, resultsContainer) {
             while (true) {
-                const response = await fetch(`${API_BASE}/simulation/${jobId}`);
+                const response = await authFetch(`${API_BASE}/simulation/${jobId}`);
                 if (!response.ok) {
                     throw new Error(`Could not fetch job status (${response.status})`);
                 }
@@ -289,6 +348,13 @@
                 tableBody.innerHTML += row;
             }
         }
+
+        (async function main() {
+            const authenticated = await initAuth();
+            if (authenticated) {
+                document.getElementById("app").style.display = "block";
+            }
+        })();
     </script>
 </body>
 </html>

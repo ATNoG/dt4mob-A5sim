@@ -8,6 +8,7 @@ dependencies = [
     "eclipse-sumo>=1.25.0",
     "traci>=1.25.0",
     "fastapi>=0.115.0",
+    "fastapi-oidc>=0.1.0",
     "uvicorn[standard]>=0.34.0",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",

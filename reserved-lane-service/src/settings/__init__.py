@@ -2,12 +2,14 @@ import logging
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from src.settings.auth import AuthSettings
 from src.settings.simulator import SimulatorSettings
 
 
 class Settings(BaseSettings):
     log_level: str = "INFO"
 
+    auth: AuthSettings
     sumo: SimulatorSettings = SimulatorSettings.model_construct()
 
     model_config = SettingsConfigDict(

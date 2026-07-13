@@ -28,6 +28,22 @@ spec:
               value: "1"
             - name: LOG_LEVEL
               value: {{ .Values.config.logLevel | quote }}
+            - name: AUTH__CLIENT_ID
+              value: {{ .Values.config.auth.clientId | quote }}
+            - name: AUTH__AUDIENCE
+              value: {{ .Values.config.auth.audience | quote }}
+            - name: AUTH__SERVER_URI
+              value: {{ .Values.config.auth.serverUri | quote }}
+            - name: AUTH__INTERNAL_SERVER_URI
+              value: {{ .Values.config.auth.internalServerUri | quote }}
+            - name: AUTH__ISSUER
+              value: {{ .Values.config.auth.issuer | toJson | quote }}
+            - name: AUTH__SIGNATURE_CACHE_TTL
+              value: {{ .Values.config.auth.signatureCacheTtl | quote }}
+            - name: AUTH__ROLE
+              value: {{ .Values.config.auth.role | quote }}
+            - name: AUTH__REALM
+              value: {{ .Values.config.auth.realm | quote }}
             - name: SUMO__MAX_CONCURRENT_JOBS
               value: {{ .Values.config.sumo.maxConcurrentJobs | quote }}
             - name: SUMO__JOB_TTL_SECONDS
