@@ -28,7 +28,7 @@ resources:
     memory: "2Gi"
 
 config:
-  logLevel: "DEBUG"
+  logLevel: "INFO"
 
   auth:
     clientId: "ditto"

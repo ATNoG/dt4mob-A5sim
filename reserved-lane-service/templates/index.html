@@ -141,6 +141,67 @@
         }
         #login-overlay .card { text-align: center; }
         #login-overlay button { width: auto; padding: 0.8rem 2rem; }
+
+        /* Jobs list */
+        #jobs-container { margin-top: 1.5rem; }
+        #jobs-container h3 { font-size: 1rem; color: #333; margin-bottom: 0.5rem; }
+        #jobs-refresh-hint { font-size: 0.75rem; color: #999; margin-bottom: 0.5rem; }
+        .jobs-table-wrap {
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e6e6e6;
+        }
+        .jobs-table-wrap table { font-size: 0.8rem; }
+        .jobs-table-wrap thead th { font-size: 0.72rem; padding: 8px 10px; }
+        .jobs-table-wrap tbody td { padding: 8px 10px; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+        }
+        .status-pending { background: #f39c12; }
+        .status-running { background: #3498db; }
+        .status-done { background: #27ae60; }
+        .status-failed { background: #e74c3c; }
+
+        .jobs-empty { text-align: center; padding: 1.5rem; color: #999; font-size: 0.85rem; }
+
+        .job-params { font-size: 0.75rem; color: #666; }
+        .job-time { font-size: 0.75rem; color: #888; }
+        .job-error { font-size: 0.72rem; color: #e74c3c; margin-top: 2px; }
+
+        .btn-view {
+            width: auto;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #3498db;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-view:hover { background: #2980b9; }
+        .btn-view:disabled { background: #a5cfe8; cursor: not-allowed; }
+
+        .btn-back {
+            width: auto;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #95a5a6;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+        }
+        .btn-back:hover { background: #7f8c8d; }
     </style>
 </head>
 <body>
@@ -154,24 +215,51 @@
 
     <div class="card" id="app" style="display:none;">
         <h2>A5 Reserved Lane Simulation</h2>
-        <h4>Value Definition</h4>
-        <div class="group">
-            <label>Paying Vehicle Percentage: <span id="percVal">20</span>%</label>
-            <input type="range" id="perc" min="0" max="100" value="20" oninput="percVal.innerText=this.value">
-            <p style="font-size: 0.7rem; color: #888;">Fraction of eligible vehicles allowed to pay for the reserved lane.</p>
+
+        <!-- Submit form -->
+        <div id="submit-section">
+            <h4>Value Definition</h4>
+            <div class="group">
+                <label>Paying Vehicle Percentage: <span id="percVal">20</span>%</label>
+                <input type="range" id="perc" min="0" max="100" value="20" oninput="percVal.innerText=this.value">
+                <p style="font-size: 0.7rem; color: #888;">Fraction of eligible vehicles allowed to pay for the reserved lane.</p>
+            </div>
+            <div class="group">
+                <label>Lane Price (€)</label>
+                <input type="number" id="price" value="1.00" step="0.10" min="0">
+            </div>
+            <div class="group">
+                <label>Scale Traffic</label>
+                <input type="number" id="scale_traffic" value="2.0" step="0.5" min="0.1">
+            </div>
+            <button id="runBtn" onclick="runSim()">Start Simulation</button>
+            <div id="status"></div>
         </div>
-        <div class="group">
-            <label>Lane Price (€)</label>
-            <input type="number" id="price" value="1.00" step="0.10" min="0">
+
+        <!-- Jobs list -->
+        <div id="jobs-container">
+            <h3>Simulations</h3>
+            <div id="jobs-refresh-hint"></div>
+            <div class="jobs-table-wrap">
+                <table id="jobsTable">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Parameters</th>
+                            <th>Created</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="jobs-empty" class="jobs-empty">No simulations yet.</div>
+            </div>
         </div>
-        <div class="group">
-            <label>Scale Traffic</label>
-            <input type="number" id="scale_traffic" value="2.0" step="0.5" min="0.1">
-        </div>
-        <button id="runBtn" onclick="runSim()">Start Simulation</button>
-        <div id="status"></div>
+
+        <!-- Results (hidden until a job is viewed) -->
         <div id="results-container" style="display:none;">
-            <h3>Simulation Results</h3>
+            <button class="btn-back" onclick="hideResults()">← Back to list</button>
+            <h3>Results</h3>
             <div class="results-table-wrap">
                 <table id="resultsTable">
                     <thead>
@@ -194,8 +282,10 @@
     <script>
         const API_BASE = "/reserved-lane/api/v1";
         const POLL_INTERVAL_MS = 2000;
+        const LIST_REFRESH_MS = 3000;
 
         let keycloak;
+        let listRefreshTimer = null;
 
         async function initAuth() {
             const res = await fetch(`${API_BASE}/auth/config`);
@@ -235,11 +325,10 @@
             return response;
         }
 
+        /* ── Submit simulation ── */
         async function runSim() {
             const status = document.getElementById('status');
             const runBtn = document.getElementById('runBtn');
-            const tableBody = document.querySelector('#resultsTable tbody');
-            const resultsContainer = document.getElementById('results-container');
 
             const payload = {
                 paying_percentage: document.getElementById('perc').value / 100,
@@ -249,24 +338,21 @@
 
             runBtn.disabled = true;
             status.innerText = "Submitting simulation...";
-            tableBody.innerHTML = "";
-            resultsContainer.style.display = "none";
 
             try {
-                const submitResponse = await authFetch(`${API_BASE}/simulation`, {
+                const res = await authFetch(`${API_BASE}/simulation`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
                 });
 
-                if (!submitResponse.ok) {
-                    const err = await submitResponse.json().catch(() => ({}));
-                    throw new Error(err.detail || `Request failed (${submitResponse.status})`);
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.detail || `Request failed (${res.status})`);
                 }
 
-                const { job_id } = await submitResponse.json();
-                status.innerText = "Simulations running...";
-                await pollJob(job_id, status, tableBody, resultsContainer);
+                status.innerText = "Simulation submitted!";
+                refreshJobsList();
             } catch (err) {
                 status.innerText = "Error: " + err.message;
                 console.error(err);
@@ -275,29 +361,105 @@
             }
         }
 
-        async function pollJob(jobId, status, tableBody, resultsContainer) {
-            while (true) {
-                const response = await authFetch(`${API_BASE}/simulation/${jobId}`);
-                if (!response.ok) {
-                    throw new Error(`Could not fetch job status (${response.status})`);
-                }
-                const job = await response.json();
+        /* ── Jobs list ── */
+        async function refreshJobsList() {
+            try {
+                const res = await authFetch(`${API_BASE}/simulation`);
+                if (!res.ok) return;
+                const jobs = await res.json();
+                renderJobsList(jobs);
+                scheduleAutoRefresh(jobs);
+            } catch (err) {
+                console.error("Failed to refresh jobs list", err);
+            }
+        }
 
+        function scheduleAutoRefresh(jobs) {
+            if (listRefreshTimer) { clearTimeout(listRefreshTimer); listRefreshTimer = null; }
+            const hasActive = jobs.some(j => j.status === "pending" || j.status === "running");
+            if (hasActive) {
+                document.getElementById('jobs-refresh-hint').innerText = "Auto-refreshing...";
+                listRefreshTimer = setTimeout(refreshJobsList, LIST_REFRESH_MS);
+            } else {
+                document.getElementById('jobs-refresh-hint').innerText = "";
+            }
+        }
+
+        function renderJobsList(jobs) {
+            const tbody = document.querySelector('#jobsTable tbody');
+            const empty = document.getElementById('jobs-empty');
+
+            if (jobs.length === 0) {
+                tbody.innerHTML = "";
+                empty.style.display = "block";
+                document.getElementById('jobsTable').style.display = "none";
+                return;
+            }
+
+            empty.style.display = "none";
+            document.getElementById('jobsTable').style.display = "";
+            tbody.innerHTML = "";
+
+            for (const job of jobs) {
+                const req = job.request;
+                const pct = Math.round(req.paying_percentage * 100);
+                const created = new Date(job.created_at * 1000).toLocaleTimeString();
+
+                let actionHtml = "";
                 if (job.status === "done") {
-                    status.innerText = "Finished!";
-                    renderResults(job.result, tableBody, resultsContainer);
+                    actionHtml = `<button class="btn-view" onclick="viewResults('${job.job_id}')">View</button>`;
+                } else if (job.status === "failed") {
+                    actionHtml = `<span class="job-error" title="${escapeHtml(job.error || '')}">Failed</span>`;
+                }
+
+                const row = `<tr>
+                    <td><span class="status-badge status-${job.status}">${job.status}</span></td>
+                    <td class="job-params">${pct}% · €${req.price.toFixed(2)} · ×${req.traffic_scale}</td>
+                    <td class="job-time">${created}</td>
+                    <td>${actionHtml}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        /* ── View results ── */
+        async function viewResults(jobId) {
+            const status = document.getElementById('status');
+            status.innerText = "Loading results...";
+
+            try {
+                const res = await authFetch(`${API_BASE}/simulation/${jobId}`);
+                if (!res.ok) throw new Error(`Could not fetch results (${res.status})`);
+                const job = await res.json();
+
+                if (job.status !== "done" || !job.result) {
+                    status.innerText = "This simulation has no results yet.";
                     return;
                 }
-                if (job.status === "failed") {
-                    throw new Error(job.error || "Simulation failed");
-                }
 
-                status.innerText = job.status === "pending"
-                    ? "Waiting for a free simulation slot..."
-                    : "Simulations running...";
-
-                await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
+                document.getElementById('submit-section').style.display = 'none';
+                document.getElementById('jobs-container').style.display = 'none';
+                document.getElementById('results-container').style.display = 'block';
+                renderResults(job.result);
+                status.innerText = "";
+            } catch (err) {
+                status.innerText = "Error: " + err.message;
+                console.error(err);
             }
+        }
+
+        function hideResults() {
+            document.getElementById('results-container').style.display = 'none';
+            document.getElementById('submit-section').style.display = '';
+            document.getElementById('jobs-container').style.display = '';
+            document.getElementById('status').innerText = '';
+            refreshJobsList();
         }
 
         const SCENARIO_LABELS = {
@@ -314,8 +476,8 @@
             closedLaneFast: "The reserved lane is closed to regular traffic, but a percentage of eligible vehicles can pay to use it."
         };
 
-        function renderResults(data, tableBody, resultsContainer) {
-            resultsContainer.style.display = "block";
+        function renderResults(data) {
+            const tableBody = document.querySelector('#resultsTable tbody');
             tableBody.innerHTML = "";
 
             for (const [scenario, stats] of Object.entries(data)) {
@@ -353,6 +515,7 @@
             const authenticated = await initAuth();
             if (authenticated) {
                 document.getElementById("app").style.display = "block";
+                refreshJobsList();
             }
         })();
     </script>

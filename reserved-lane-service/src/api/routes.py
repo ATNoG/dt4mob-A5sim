@@ -3,13 +3,34 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.auth import KeycloakToken, check_role
-from src.models.simulation import JobStatusResponse, JobSubmitted, SimulationRequest
+from src.models.simulation import (
+    JobListItem,
+    JobStatusResponse,
+    JobSubmitted,
+    SimulationRequest,
+)
 from src.services.simulation.jobs import job_manager
 from src.settings import settings
 
 router = APIRouter(prefix="/api/v1")
 
 require_role = check_role([settings.auth.role])
+
+
+@router.get("/simulation", response_model=list[JobListItem])
+async def list_simulations(
+    token: Annotated[KeycloakToken, Depends(require_role)],
+) -> list[JobListItem]:
+    return [
+        JobListItem(
+            job_id=job.id,
+            status=job.status,
+            request=job.request,
+            created_at=job.created_at,
+            error=job.error,
+        )
+        for job in job_manager.list_all()
+    ]
 
 
 @router.post("/simulation", response_model=JobSubmitted, status_code=202)

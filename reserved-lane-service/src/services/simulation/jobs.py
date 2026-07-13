@@ -16,7 +16,7 @@ class Job:
     status: JobStatus = JobStatus.PENDING
     result: Optional[SimulationResponse] = None
     error: Optional[str] = None
-    created_at: float = field(default_factory=time.monotonic)
+    created_at: float = field(default_factory=time.time)
 
 
 class SimulationJobManager:
@@ -45,6 +45,10 @@ class SimulationJobManager:
     def get(self, job_id: str) -> Optional[Job]:
         return self._jobs.get(job_id)
 
+    def list_all(self) -> list[Job]:
+        self._evict_expired()
+        return sorted(self._jobs.values(), key=lambda j: j.created_at, reverse=True)
+
     async def _execute(self, job: Job) -> None:
         async with self._semaphore:
             job.status = JobStatus.RUNNING
@@ -58,7 +62,7 @@ class SimulationJobManager:
 
     def _evict_expired(self) -> None:
         ttl = settings.sumo.job_ttl_seconds
-        now = time.monotonic()
+        now = time.time()
         expired = [
             job_id
             for job_id, job in self._jobs.items()

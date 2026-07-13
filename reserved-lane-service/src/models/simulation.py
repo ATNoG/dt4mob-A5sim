@@ -46,3 +46,11 @@ class JobStatusResponse(BaseModel):
     status: JobStatus
     result: Optional[SimulationResponse] = None
     error: Optional[str] = None
+
+
+class JobListItem(BaseModel):
+    job_id: str
+    status: JobStatus
+    request: SimulationRequest
+    created_at: float
+    error: Optional[str] = None
