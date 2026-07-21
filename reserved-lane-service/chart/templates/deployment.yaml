@@ -33,11 +33,15 @@ spec:
             - name: AUTH__AUDIENCE
               value: {{ .Values.config.auth.audience | quote }}
             - name: AUTH__SERVER_URI
-              value: {{ .Values.config.auth.serverUri | quote }}
+              value: {{ tpl .Values.config.auth.serverUri . | quote }}
             - name: AUTH__INTERNAL_SERVER_URI
               value: {{ .Values.config.auth.internalServerUri | quote }}
             - name: AUTH__ISSUER
-              value: {{ .Values.config.auth.issuer | toJson | quote }}
+              {{- $evaluatedIssuers := list }}
+              {{- range .Values.config.auth.issuer }}
+                {{- $evaluatedIssuers = append $evaluatedIssuers (tpl . $) }}
+              {{- end }}
+              value: {{ $evaluatedIssuers | toJson | quote }}
             - name: AUTH__SIGNATURE_CACHE_TTL
               value: {{ .Values.config.auth.signatureCacheTtl | quote }}
             - name: AUTH__ROLE
