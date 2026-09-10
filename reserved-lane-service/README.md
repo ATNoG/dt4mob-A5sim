@@ -107,5 +107,32 @@ Click Start Simulation. Wait for results.
 
 ## Deploying
 
-...
+Deploy with the Helm chart in `chart/`:
+
+```bash
+helm install reserved-lane ./chart \
+  --set image.repository=<your-registry>/reserved_lane_simulator \
+  --set image.tag=<version>
+```
+
+### Key configurable values
+
+| Value | Default | Description |
+|---|---|---|
+| `replicaCount` | `1` | Number of pods |
+| `image.repository` | `atnog-harbor.av.it.pt/dt4mob/reserved_lane_simulator` | Container image |
+| `image.tag` | `latest` | Image tag |
+| `host` | `dt4mob.av.it.pt` | Ingress hostname |
+| `ingress.enabled` | `true` | Create an Ingress resource |
+| `service.port` | `443` | Service port |
+| `service.targetPort` | `8000` | Container port |
+
+Override values at install time with `--set` or a custom YAML file (`helm install ... -f custom-values.yaml`).
+
+### Upgrade / Uninstall
+
+```bash
+helm upgrade reserved-lane ./chart --set image.tag=<new-version>
+helm uninstall reserved-lane
+```
 
